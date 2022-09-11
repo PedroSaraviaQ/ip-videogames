@@ -136,7 +136,7 @@ describe("Videogame model", () => {
   });
 
   describe("Image", () => {
-    it("should throw an error if URL is invalid", () => {
+    it("should throw an error if image is invalid", () => {
       expect.assertions(1);
       return Videogame.create({
         name: "Super Mario Bros",
@@ -144,10 +144,10 @@ describe("Videogame model", () => {
         released: "2013-09-24",
         rating: 7.8,
         platforms: ["PC", "Xbox"],
-        image: "an-image",
+        image: [],
       }).catch((err) => expect(err).toBeDefined());
     });
-    it("should work when it's a valid URL", () => {
+    it("should work when it's a valid image", () => {
       expect.assertions(1);
       return Videogame.create({
         name: "Super Mario Bros",

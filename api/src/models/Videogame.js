@@ -22,13 +22,8 @@ module.exports = (sequelize) => {
     platforms: {
       type: DataTypes.ARRAY(DataTypes.STRING),
     },
-    // To fix: default value for errors
     image: {
       type: DataTypes.TEXT,
-      defaultValue: "https://t3.ftcdn.net/jpg/02/80/94/76/360_F_280947621_U7mDimuN41KHdMfvt3aIqd0OgXh7RAzm.jpg",
-      validate: {
-        isUrl: true,
-      },
     },
   });
 };
