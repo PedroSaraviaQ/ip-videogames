@@ -26,6 +26,20 @@ describe("Videogame routes", () => {
     });
   });
 
+  describe("[] GET /videogames:", () => {
+    it("should get 200", () => request.get("/videogames").expect(200));
+    it("should return videogames from the API and the database", async () => {
+      expect.assertions(5);
+      return request.get("/videogames").then((res) => {
+        expect(res.body.length).toBe(101);
+        expect(res.body[1].name).toBe("The Witcher 3: Wild Hunt");
+        expect(res.body[99].official).toBeTruthy();
+        expect(res.body[100].genres).toContain("Puzzle");
+        expect(res.body[100].official).toBeFalsy();
+      });
+    });
+  });
+
   describe("[] POST /videogames:", () => {
     it("should throw an error if send data is invalid", () => {
       expect.assertions(1);
