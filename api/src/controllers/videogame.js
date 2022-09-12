@@ -36,21 +36,22 @@ module.exports = {
       //
     } catch (err) {
       console.log(err.message);
-      res.status(404).send(err);
+      res.status(400).send(err);
     }
   },
   postVideogame: async (req, res) => {
     const { data, genres } = req.body;
     try {
+      // looks for missing inputs or invalid genres
       if (!data.name || !data.description) throw new Error("Some inputs are required");
       const dbGenres = await Genre.findAll({ where: { name: { [Op.in]: genres } } });
-      if (genres.length !== dbGenres.length) {
-        throw new Error("Insert valid genres");
-      }
+      if (genres.length !== dbGenres.length) throw new Error("Insert valid genres");
+      //
       await (await Videogame.create(data)).setGenres(dbGenres);
       res.sendStatus(200);
-    } catch (error) {
-      res.status(400).send(error);
+    } catch (err) {
+      console.log(err.message);
+      res.status(400).send(err);
     }
   },
 };
