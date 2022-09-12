@@ -6,19 +6,15 @@ const axios = require("axios");
 module.exports = {
   getGenres: async (req, res) => {
     try {
-      // Retrieves the genres from the API and selects only their names
-      let genre_names = (await axios.get(`/genres?key=${API_KEY}`)).data.results.map((genre) => genre.name);
-      // Inserts the genres in the database and then retrieves them
-      await Promise.all(
-        genre_names.map((name) =>
-          Genre.findOrCreate({
-            where: { name },
-          })
-        )
-      );
-      res.send(await Genre.findAll());
+      // retrieves the genres from the API
+      const apiGenres = (await axios.get(`/genres?key=${API_KEY}`)).data.results;
+      // tries to insert the genres in the database, then sends them all
+      const createGenres = ({ name }) => Genre.findOrCreate({ where: { name } });
+      await Promise.all(apiGenres.map(createGenres));
+      res.send(await Genre.findAll({ attributes: ["name"] }));
     } catch (err) {
-      res.send(err);
+      console.log(err.message);
+      res.status(400).send(err);
     }
   },
 };
