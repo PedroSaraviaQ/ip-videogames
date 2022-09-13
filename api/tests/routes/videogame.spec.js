@@ -58,6 +58,35 @@ describe("Videogame routes", () => {
     });
   });
 
+  describe("[] GET /videogames/{idVideogame}", () => {
+    it("should throw an error if ID is invalid", () => {
+      expect.assertions(1);
+      return request.get("/videogames/si?official=true").then((res) => expect(res.status).toBe(400));
+    });
+    it("should throw an error if no videogame is found", async () => {
+      expect.assertions(2);
+      await request.get("/videogames/6243252?official=true").then((res) => expect(res.status).toBe(404));
+      await request.get("/videogames/2?official=false").then((res) => expect(res.status).toBe(404));
+    });
+    it("should return a videogame from the API", async () => {
+      expect.assertions(3);
+      return request.get("/videogames/1320?official=true").then((res) => {
+        expect(res.body.name).toBe("Dead Rising");
+        expect(res.body.platforms[1]).toBe("PlayStation");
+        expect(res.body.genres.length).toBe(1);
+      });
+    });
+    it("should return a videogame from the database", async () => {
+      expect.assertions(4);
+      return request.get("/videogames/1?official=false").then((res) => {
+        expect(res.body.name).toBe("Super Mario Bros: Pan");
+        expect(res.body.platforms.length).toBe(2);
+        expect(res.body.rating).toBe(7.8);
+        expect(res.body.genres).toContain("Puzzle");
+      });
+    });
+  });
+
   describe("[] POST /videogames:", () => {
     it("should throw an error if send data is invalid", () => {
       expect.assertions(1);
@@ -107,7 +136,7 @@ describe("Videogame routes", () => {
       });
       const videogames = await Videogame.findAll({ include: { model: Genre, through: { attributes: [] } } });
       expect(videogames[1].genres.map((g) => g.name)).toContain("Adventure");
-      expect(videogames[0].name).toBe("Super Mario Bros");
+      expect(videogames[0].name).toBe("Super Mario Bros: Pan");
     });
   });
 

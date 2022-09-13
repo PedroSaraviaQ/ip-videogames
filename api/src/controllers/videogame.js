@@ -42,10 +42,44 @@ module.exports = {
       res.send(total);
       //
     } catch (err) {
-      console.log(err.message);
       res.status(400).send(err);
     }
   },
+
+  getVideogameById: async (req, res) => {
+    const { id } = req.params;
+    const { official } = req.query;
+    try {
+      if (isNaN(Number(id))) throw new Error("Id must be a valid number");
+      // retrieves a videogame from the API and sends it
+      if (official === "true") {
+        return axios.get(`/games/${id}?key=${API_KEY}`).then(
+          ({ data }) => {
+            const videogame = {
+              name: data.name,
+              description: data.description,
+              released: data.released,
+              rating: data.rating,
+              platforms: data.parent_platforms.map((p) => p.platform.name),
+              image: data.background_image,
+              genres: data.genres.map((g) => g.name),
+            };
+            res.send(videogame);
+          },
+          () => res.status(404).send("Id not found")
+        );
+      }
+      //
+      // retrieves a videogame from the database and sends it
+      const videogame = await Videogame.findOne({ where: { id }, include: Genre });
+      if (!videogame) return res.status(404).send("Id not found");
+      res.send({ ...videogame.toJSON(), genres: videogame.genres.map((g) => g.name) });
+      //
+    } catch (err) {
+      res.status(400).send(err);
+    }
+  },
+
   postVideogame: async (req, res) => {
     const { data, genres } = req.body;
     try {
@@ -57,7 +91,6 @@ module.exports = {
       await (await Videogame.create(data)).setGenres(dbGenres);
       res.sendStatus(200);
     } catch (err) {
-      console.log(err.message);
       res.status(400).send(err);
     }
   },
