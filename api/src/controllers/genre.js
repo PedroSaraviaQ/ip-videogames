@@ -15,7 +15,6 @@ module.exports = {
       res.send(await Genre.findAll({ attributes: ["name"] }));
       //
     } catch (err) {
-      console.log(err.message);
       res.status(400).send(err);
     }
   },
