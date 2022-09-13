@@ -71,6 +71,7 @@ module.exports = {
       }
       //
       // retrieves a videogame from the database and sends it
+      // to fix: Can you make this code snippet DRYer? without using the 'toJSON' method?
       const videogame = await Videogame.findOne({ where: { id }, include: Genre });
       if (!videogame) return res.status(404).send("Id not found");
       res.send({ ...videogame.toJSON(), genres: videogame.genres.map((g) => g.name) });
