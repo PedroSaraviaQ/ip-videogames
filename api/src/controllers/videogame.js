@@ -6,22 +6,29 @@ const { Videogame, Genre } = require("../db");
 
 module.exports = {
   getVideogames: async (req, res) => {
+    const { name } = req.query;
+    // some conditions if name exists
+    const nameQueries = name ? `search=${name}&search_precise=true&` : "";
+    const where = name ? { name: { [Op.iLike]: `%${req.query.name}%` } } : {};
+    //
     try {
       const pages = [1, 2, 3, 4, 5];
       // will retrieve videogames from the API
       const apiVideogames = pages.map((i) =>
-        axios.get(`/games?key=${API_KEY}&page=${i}`).then((res) =>
-          res.data.results.map((vg) => ({
-            name: vg.name,
-            genres: vg.genres.map((g) => g.name),
-            image: vg.background_image,
-            official: true,
-          }))
+        axios.get(`/games?${nameQueries}key=${API_KEY}&page=${i}`).then(
+          (res) =>
+            res.data.results.map((vg) => ({
+              name: vg.name,
+              genres: vg.genres.map((g) => g.name),
+              image: vg.background_image,
+              official: true,
+            })),
+          () => []
         )
       );
       //
       // will retrieve videogames from the database
-      const dbVideogames = Videogame.findAll({ include: Genre }).then((data) =>
+      const dbVideogames = Videogame.findAll({ where, include: Genre }).then((data) =>
         data.map((vg) => ({
           name: vg.name,
           genres: vg.genres.map((g) => g.name),

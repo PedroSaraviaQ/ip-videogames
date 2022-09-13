@@ -15,7 +15,7 @@ describe("Videogame routes", () => {
     await request.get("/genres");
     await request.post("/videogames").send({
       data: {
-        name: "Super Mario Bros",
+        name: "Super Mario Bros: Pan",
         description: "It's about something related",
         released: "2013-09-24",
         rating: 7.8,
@@ -37,6 +37,24 @@ describe("Videogame routes", () => {
         expect(res.body[100].genres).toContain("Puzzle");
         expect(res.body[100].official).toBeFalsy();
       });
+    });
+  });
+
+  describe('[] GET /videogames?name="...":', () => {
+    it("should return videogames from the API and the database", async () => {
+      expect.assertions(5);
+      return request.get("/videogames?name=bros").then((res) => {
+        expect(res.body.length).toBe(101);
+        expect(res.body[2].name).toBe("Mario Bros.");
+        expect(res.body[99].official).toBeTruthy();
+        expect(res.body[100].name).toContain("Super Mario Bros: Pan");
+        expect(res.body[100].official).toBeFalsy();
+      });
+    });
+    it("should also work when no videogames are found", async () => {
+      expect.assertions(2);
+      await request.get("/videogames?name=pan").then((res) => expect(res.body.length).toBe(71));
+      await request.get("/videogames?name=qwampypolate").then((res) => expect(res.body).toEqual([]));
     });
   });
 
